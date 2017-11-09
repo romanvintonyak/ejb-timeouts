@@ -13,11 +13,10 @@ import javax.naming.NamingException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.UUID;
 
 @Path("manager")
 @Produces(MediaType.APPLICATION_JSON)
-public class EjbSessionManager {
+public class SessionManagerWS {
 
     @EJB
     SessionManager manager;
@@ -37,11 +36,13 @@ public class EjbSessionManager {
     public Response createNewSession(JsonObject data) throws NamingException {
         String name = data.getString("name");
         InitialContext context = new InitialContext();
-        SessionBean sessionBean = (SessionBean) context.lookup("java:module/SessionBean!com.rvintonyak.ejb.SessionBean");
-        String id = UUID.randomUUID().toString();
-        sessionBean.setId(id);
-        sessionBean.setData(name);
-        manager.getSessions().put(id, sessionBean);
+        for(int i=0; i<10; i++){
+            SessionBean sessionBean = (SessionBean) context.lookup("java:module/SessionBean!com.rvintonyak.ejb.SessionBean");
+            //String id = UUID.randomUUID().toString();
+            sessionBean.setId(String.valueOf(i));
+            sessionBean.setData(name + i);
+            manager.getSessions().put(String.valueOf(i), sessionBean);
+        }
         //context
         return Response.ok().build();
     }

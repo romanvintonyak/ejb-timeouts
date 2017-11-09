@@ -1,15 +1,12 @@
 package com.rvintonyak.ejb;
-
 import javax.annotation.PreDestroy;
-import javax.ejb.EJB;
-import javax.ejb.Remove;
-import javax.ejb.Stateful;
-import javax.ejb.StatefulTimeout;
+import javax.ejb.*;
 import java.util.concurrent.TimeUnit;
 
 @Stateful
-@StatefulTimeout(value = 30, unit = TimeUnit.SECONDS)
+@StatefulTimeout(value = 1, unit = TimeUnit.MINUTES)
 public class SessionBean {
+
     private String id;
 
     private String data;
@@ -33,16 +30,24 @@ public class SessionBean {
         this.data = data;
     }
 
+    @PrePassivate
+    public void prePassivate(){
+        System.out.println("bean with id " + data + " IS BEING passivated");
+    }
+
+    @PostActivate
+    public void postActivate(){
+        System.out.println("bean with id " + data + " IS BEING activated");
+    }
+
     @PreDestroy
     public void preDestroy(){
-        System.out.println("bean with name " + data + " IS BEING removed");
+        System.out.println("bean with id " + id + " IS BEING removed");
         sessionManager.getSessions().remove(this.getId());
     }
 
     @Remove
     public void remove(){
-        System.out.println("bean with name " + data + " WAS successfully removed");
-        System.out.println(sessionManager.getSessions());
-
+        System.out.println("bean with name " + id + " WAS successfully removed");
     }
 }
